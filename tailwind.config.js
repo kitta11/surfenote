@@ -4,14 +4,13 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				// Ensure colors are defined inside the colors object
-				primaryColor: '#003366',
-				secondaryColor: '#708090',
+				primaryColor: '#2596be',
+				secondaryColor: '#fcd444',
 				primaryBg: '#F5F5F5',
 				secondaryBg: '#FFFFFF',
-				alertColor: '#DC143C',
-				darkGreen: '#2E8B57',
-				mediumGreen: '#3CB371',
+				alertColor: '#e53935',
+				green: '#bcd89c',
+				orange: '#e8a11f',
 			},
 			fontSize: {
 				tiny: '8px',
