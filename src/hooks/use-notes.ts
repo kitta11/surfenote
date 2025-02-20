@@ -1,15 +1,8 @@
 import { useEffect, useState } from 'react'
-import { NoteProps } from '../types'
+import { NoteProps, UseNotesResponse } from '../types'
 import { useWorkspaceKeyContext } from '../contexts/workspacekey-context'
 
-export interface UseNotesResponse {
-	data: NoteProps[]
-	error: string | undefined
-	isLoading: boolean
-	updateNote: (id: number, body: string) => void
-	addNote: (body: string) => void
-}
-export const useNotes = (): UseNotesResponse => {
+export function useNotes (): UseNotesResponse {
 	const [notes, setNotes] = useState<NoteProps[]>([])
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | undefined>(undefined)
