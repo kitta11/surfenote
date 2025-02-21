@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+	--note-blue: #2596be;
+	--note-yellow: #fcd444;
+	--note-red: #e53935;
+	--note-green: #bcd89c;
+	--note-orange: #e8a11f;
+
+	--note-font-tiny: 8px;
+	--note-font-sm: 12px;
+	--note-font-md: 16px;
+	--note-font-lg: 24px;
+	--note-font-xl: 32px;
+
+	--note-spacing-1: 4px;
+	--note-spacing-2: 8px;
+	--note-spacing-3: 16px;
+	--note-spacing-4: 24px;
+	--note-spacing-5: 32px;
+}
+
+@layer components {
+	.overlayListItem {
+		color: var(--note-orange);
+		font-size: var(--note-font-sm);
+		padding: var(--note-spacing-1);
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--note-orange);
+			color: white;
+		}
+	}
+}
