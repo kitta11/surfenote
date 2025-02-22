@@ -1,6 +1,8 @@
 export interface NoteProps {
 	id?: number
 	body: string
+	isNew?: boolean
+	handleAddNewNode?: (body: string) => void
 }
 
 export interface UseNotesResponse {

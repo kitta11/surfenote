@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NoteProps, UseNotesResponse } from '../types'
 import { useWorkspaceKeyContext } from '../contexts/workspacekey-context'
 
-export function useNotes (): UseNotesResponse {
+export function useNotes(): UseNotesResponse {
 	const [notes, setNotes] = useState<NoteProps[]>([])
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | undefined>(undefined)
@@ -37,9 +37,9 @@ export function useNotes (): UseNotesResponse {
 				},
 				body: JSON.stringify({ body }),
 			})
+
 			if (response.ok) {
-				const createdNote: NoteProps = await response.json()
-				setNotes((prevnotes) => [...prevnotes, createdNote])
+				await getNotes()
 			}
 		} catch (err: any) {
 			if (err instanceof Error) {

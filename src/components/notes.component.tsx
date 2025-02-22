@@ -1,23 +1,33 @@
-import { useWorkspaceKeyContext } from '../contexts/workspacekey-context'
+import { useState } from 'react'
 import { useNotes } from '../hooks/use-notes'
-import { NoteProps } from '../types'
 import { Note } from './note.component'
 
-const testNotes: NoteProps[] = [
-	{ id: 1, body: 'ALMA' },
-	{ id: 2, body: 'Test note body 2' },
-	{ id: 3, body: 'Test note body 3' },
-]
+function getNewNoteKey(): string {
+	return crypto.randomUUID()
+}
+
 export function Notes() {
-	// const { workspaceKey } = useWorkspaceKeyContext()
-	const { data: notes, error, isLoading } = useNotes()
+	const { data: notes, error, isLoading, addNote } = useNotes()
+
+	const starterKey = getNewNoteKey()
+	const [newNoteKey, setNewNoteKey] = useState<string>(starterKey)
+
+	function handleAddNewNode(body: string) {
+		addNote(body)
+		const newKey = getNewNoteKey()
+		setNewNoteKey(newKey)
+	}
 
 	return (
 		<div>
-			{/* NOTES: ${workspaceKey} */}
 			{!isLoading && !error && (
 				<ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					<Note key={notes.length + 1} body="" isNew />
+					<Note
+						key={newNoteKey}
+						body=""
+						isNew={true}
+						handleAddNewNode={handleAddNewNode}
+					/>
 					{notes.map((note) => (
 						<Note key={note.id} {...note} />
 					))}

@@ -14,7 +14,7 @@ interface WorkspaceKeyContextType {
 }
 const WorkspaceKeyContext = createContext<WorkspaceKeyContextType | null>(null)
 
-interface WorkspaceKeyProvider {
+export interface WorkspaceKeyProvider {
 	children: ReactNode
 }
 

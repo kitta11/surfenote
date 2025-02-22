@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce'
 import { useNotes } from '../hooks/use-notes'
 import { useUsers } from '../hooks/use-users'
 
-export function Note(props: NoteProps & { isNew?: boolean }) {
+export function Note(props: NoteProps) {
 	const divRef = useRef<HTMLDivElement>(null)
 	const caretPosRef = useRef<number>(0)
 
@@ -16,7 +16,7 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 	const [cursorPositionX, setCursorPositionX] = useState<number | null>(null)
 	const [cursorPositionY, setCursorPositionY] = useState<number | null>(null)
 
-	const { updateNote, addNote } = useNotes()
+	const { updateNote } = useNotes()
 
 	const { data: usersData, isLoading: usersLoading } = useUsers()
 
@@ -26,7 +26,9 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 		if (props.id !== undefined) {
 			updateNote(props.id, noteBodyInnerHTML)
 		} else {
-			addNote(noteBodyInnerHTML)
+			if (props.handleAddNewNode) {
+				props.handleAddNewNode(noteBodyInnerHTML)
+			}
 		}
 	}
 
@@ -66,7 +68,17 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 		if (!selection || selection.rangeCount === 0) return null
 
 		const range = selection.getRangeAt(0)
-		const rect = range.getBoundingClientRect() // Get position
+		if (!range) return null
+
+		if (range.collapsed) {
+			const rect =
+				range.startContainer instanceof HTMLElement
+					? range.startContainer.getBoundingClientRect()
+					: range.getBoundingClientRect()
+
+			return { x: rect.left, y: rect.bottom - 28 }
+		}
+		const rect = range.getBoundingClientRect()
 
 		return { x: rect.left, y: rect.bottom - 28 }
 	}
@@ -146,11 +158,25 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 			.filter((user) => user.username.toLowerCase().includes(mentionQuery.toLowerCase()))
 			.slice(0, 5)
 		if (usersLoading || !usersData) {
-			return <li className="overlayListItem">Loading...</li>
+			return (
+				<li
+					className="overlayListItem"
+					data-testid={`note-${props.id}-mention-list-loading`}
+				>
+					Loading...
+				</li>
+			)
 		}
 
 		if (filteredUserList.length === 0) {
-			return <li className="overlayListItem">No users found</li>
+			return (
+				<li
+					className="overlayListItem"
+					data-testid={`note-${props.id}-mention-list-no-result`}
+				>
+					No users found
+				</li>
+			)
 		}
 
 		return filteredUserList.map((user) => (
@@ -158,6 +184,7 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 				className="overlayListItem"
 				key={user.username}
 				onClick={() => insertMention(user.username, user.email)}
+				data-testid={`note-${props.id}-mention-list-item`}
 			>
 				{user.username}
 			</li>
@@ -178,7 +205,7 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 
 		// Create and style mention element
 		const mentionElement = document.createElement('a')
-		mentionElement.textContent = `@${username}`
+		mentionElement.textContent = `@${username} `
 		if (mailto) mentionElement.href = `mailto:${mailto}`
 		mentionElement.classList.add('text-orange')
 		mentionElement.classList.add('cursor-pointer')
@@ -232,7 +259,10 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 	}
 
 	return (
-		<div className={`border p-3 m-3 ${props.isNew ? 'bg-primaryColor' : 'bg-secondaryColor'}`}>
+		<div
+			className={`border p-3 m-3 ${props.isNew ? 'bg-primaryColor' : 'bg-secondaryColor'}`}
+			data-testid={`note-${props.id}`}
+		>
 			<span className="p-2 mb-2 bg-orange w-auto text-white">
 				{props.id !== undefined ? `Noté - ${props.id}` : 'New note'}
 			</span>
@@ -244,6 +274,8 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 				suppressContentEditableWarning
 				className="bg-white w-full my-3 p-3"
 				onKeyDown={handleMentions}
+				data-testid={`note-${props.id}-body`}
+				role="textbox"
 			/>
 			{showMentionInput && (
 				<div
@@ -256,6 +288,7 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 						borderRadius: '4px',
 						padding: 'var(--note-spacing-1)',
 					}}
+					data-testid={`note-${props.id}-mention-overlay`}
 				>
 					<input
 						type="text"
@@ -264,8 +297,11 @@ export function Note(props: NoteProps & { isNew?: boolean }) {
 						onKeyDown={handleMentionInputKeyDown}
 						autoFocus
 						className="bg-orange text-white text-md p-1"
+						data-testid={`note-${props.id}-mention-input`}
 					/>
-					<ul>{renderFilteredUserList()}</ul>
+					<ul data-testid={`note-${props.id}-mention-list`}>
+						{renderFilteredUserList()}
+					</ul>
 				</div>
 			)}
 		</div>
