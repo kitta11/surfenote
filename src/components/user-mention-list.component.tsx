@@ -33,7 +33,7 @@ export function UserMentionList(props: UserMentionListProps) {
       return (
         <li
           className='overlayListItem'
-          data-testid={`note-${props.id}-mention-list-loading`}
+          data-testid={`note-${props.id || 'new'}-mention-list-loading`}
         >
           Loading...
         </li>
@@ -44,7 +44,7 @@ export function UserMentionList(props: UserMentionListProps) {
       return (
         <li
           className='overlayListItem'
-          data-testid={`note-${props.id}-mention-list-no-result`}
+          data-testid={`note-${props.id || 'new'}-mention-list-no-result`}
         >
           No users found
         </li>
@@ -56,7 +56,7 @@ export function UserMentionList(props: UserMentionListProps) {
         className='overlayListItem'
         key={user.username}
         onClick={() => handleSelect(user)}
-        data-testid={`note-${props.id}-mention-list-item`}
+        data-testid={`note-${props.id || 'new'}-mention-list-item`}
       >
         {user.username}
       </li>
@@ -70,11 +70,11 @@ export function UserMentionList(props: UserMentionListProps) {
         value={mentionQuery}
         onChange={handleInputChange}
         className='w-full bg-orange p-1 text-md text-white'
-        data-testid={`note-${props.id}-mention-input`}
+        data-testid={`note-${props.id || 'new'}-mention-input`}
         autoFocus
         onKeyDown={props.onKeyDown}
       />
-      <ul data-testid={`note-${props.id}-mention-list`}>
+      <ul data-testid={`note-${props.id || 'new'}-mention-list`}>
         {renderFilteredUserList()}
       </ul>
     </div>

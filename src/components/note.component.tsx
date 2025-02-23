@@ -235,7 +235,7 @@ export function Note(props: NoteProps) {
   return (
     <div
       className={`m-3 border p-3 ${props.isNew ? 'bg-primaryColor' : 'bg-secondaryColor'}`}
-      data-testid={`note-${props.id}`}
+      data-testid={`note-${props.id || 'new'}`}
     >
       <span className='mb-2 w-auto bg-orange p-2 text-white'>
         {props.id !== undefined ? `Noté - ${props.id}` : 'New note'}
@@ -248,7 +248,7 @@ export function Note(props: NoteProps) {
         suppressContentEditableWarning
         className='my-3 w-full bg-white p-3'
         onKeyDown={handleMentions}
-        data-testid={`note-${props.id}-body`}
+        data-testid={`note-${props.id || 'new'}-body`}
         role='textbox'
       />
       {showMentionInput && (
@@ -262,7 +262,7 @@ export function Note(props: NoteProps) {
             borderRadius: '4px',
             padding: 'var(--note-spacing-1)',
           }}
-          data-testid={`note-${props.id}-mention-overlay`}
+          data-testid={`note-${props.id || 'new'}-mention-overlay`}
         >
           <UserMentionList
             id={props.id}

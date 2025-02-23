@@ -22,7 +22,10 @@ export function Notes() {
   return (
     <div>
       {!isLoading && !error && (
-        <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+        <ul
+          className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'
+          data-testid='notes-list'
+        >
           <Note
             key={newNoteKey}
             body=''
@@ -34,8 +37,10 @@ export function Notes() {
           ))}
         </ul>
       )}
-      {isLoading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
+      {isLoading && !error && (
+        <p data-testid='notes-list-loading'>Loading...</p>
+      )}
+      {error && <p data-testid='notes-list-error'>{error}</p>}
     </div>
   )
 }
