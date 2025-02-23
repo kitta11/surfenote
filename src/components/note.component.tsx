@@ -46,7 +46,7 @@ export function Note(props: NoteProps) {
     const func = () => {
       autoSaveRef.current?.()
     }
-    return debounce(func, 1500)
+    return debounce(func, 2000)
   }, [])
 
   useEffect(() => {
@@ -192,7 +192,12 @@ export function Note(props: NoteProps) {
 
     if (!editableElement) return
 
-    if (editableElement.innerHTML.trim() === '<br>') {
+    console.log('HTML', editableElement.innerHTML)
+
+    if (
+      editableElement.innerHTML.trim() === '<br>' ||
+      editableElement.innerHTML.trim() === ''
+    ) {
       editableElement.innerHTML = ''
       const placeholder = document.createTextNode(' ')
       editableElement.appendChild(placeholder)
