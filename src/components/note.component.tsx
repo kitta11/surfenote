@@ -211,7 +211,7 @@ export function Note(props: NoteProps) {
   }
 
   function insertMention(username: string, mailto?: string) {
-    if (!divRef.current || !cursorPosition) return
+    if (!divRef.current || cursorPosition === undefined) return
 
     // Create and style mention element
     const mentionElement = document.createElement('a')
@@ -234,6 +234,18 @@ export function Note(props: NoteProps) {
     const range = selection?.getRangeAt(0)
     if (!range || !selection) return
 
+    const editableElement = divRef.current
+
+    if (!editableElement) return
+
+    if (editableElement.innerHTML.trim() === '<br>') {
+      editableElement.innerHTML = ''
+      const placeholder = document.createTextNode(' ')
+      editableElement.appendChild(placeholder)
+      range.setStart(placeholder, 0)
+      range.setEnd(placeholder, 0)
+    }
+
     range.deleteContents()
     range.insertNode(element)
 
@@ -247,11 +259,6 @@ export function Note(props: NoteProps) {
     // Remove any existing selections and add the new range
     selection.removeAllRanges()
     selection.addRange(newRange)
-
-    // Get the contenteditable element and update its state too
-    const editableElement = divRef.current
-
-    if (!editableElement) return
 
     handleNoteBodyTextChange({
       currentTarget: editableElement,
