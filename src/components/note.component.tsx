@@ -1,5 +1,4 @@
 import React, {
-  ChangeEvent,
   FormEvent,
   useEffect,
   useMemo,
@@ -7,10 +6,10 @@ import React, {
   useState,
   useCallback,
 } from 'react'
-import { NoteProps } from '../types'
+import { NoteProps, User } from '../types'
 import debounce from 'lodash/debounce'
 import { useNotes } from '../hooks/use-notes'
-import { useUsers } from '../hooks/use-users'
+import { UserMentionList } from './user-mention-list.component'
 
 export function Note(props: NoteProps) {
   const divRef = useRef<HTMLDivElement>(null)
@@ -19,14 +18,11 @@ export function Note(props: NoteProps) {
   const [noteBodyInnerHTML, setNoteBodyInnerHTML] = useState(props.body || '')
 
   const [showMentionInput, setShowMentionInput] = useState(false)
-  const [mentionQuery, setMentionQuery] = useState('')
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [cursorPositionX, setCursorPositionX] = useState<number | null>(null)
   const [cursorPositionY, setCursorPositionY] = useState<number | null>(null)
 
   const { updateNote } = useNotes()
-
-  const { data: usersData, isLoading: usersLoading } = useUsers()
 
   const autoSave = useCallback(() => {
     if (showMentionInput) return
@@ -153,7 +149,6 @@ export function Note(props: NoteProps) {
       }
       setShowMentionInput(true)
       setCursorPosition(caretPos)
-      setMentionQuery('')
 
       divRef.current.setAttribute('contenteditable', 'false')
 
@@ -161,66 +156,25 @@ export function Note(props: NoteProps) {
     }
   }
 
-  function renderFilteredUserList() {
-    const filteredUserList = usersData
-      .filter((user) =>
-        user.username.toLowerCase().includes(mentionQuery.toLowerCase()),
-      )
-      .slice(0, 5)
-    if (usersLoading || !usersData) {
-      return (
-        <li
-          className='overlayListItem'
-          data-testid={`note-${props.id}-mention-list-loading`}
-        >
-          Loading...
-        </li>
-      )
-    }
-
-    if (filteredUserList.length === 0) {
-      return (
-        <li
-          className='overlayListItem'
-          data-testid={`note-${props.id}-mention-list-no-result`}
-        >
-          No users found
-        </li>
-      )
-    }
-
-    return filteredUserList.map((user) => (
-      <li
-        className='overlayListItem'
-        key={user.username}
-        onClick={() => insertMention(user.username, user.email)}
-        data-testid={`note-${props.id}-mention-list-item`}
-      >
-        {user.username}
-      </li>
-    ))
-  }
-
   function setContentEditableActive() {
     if (!divRef.current) return
     setShowMentionInput(false)
-    setMentionQuery('')
     divRef.current.setAttribute('contenteditable', 'true')
     divRef.current.focus()
     setCaretPosition(divRef.current, cursorPosition ?? 0)
   }
 
-  function insertMention(username: string, mailto?: string) {
+  function insertMention(user: User) {
     if (!divRef.current || cursorPosition === undefined) return
 
     // Create and style mention element
     const mentionElement = document.createElement('a')
-    mentionElement.textContent = `@${username} `
-    if (mailto) mentionElement.href = `mailto:${mailto}`
+    mentionElement.textContent = `@${user.username} `
+    if (user.email) mentionElement.href = `mailto:${user.email}`
     mentionElement.classList.add('text-orange')
     mentionElement.classList.add('cursor-pointer')
     mentionElement.classList.add('hover:underline')
-    mentionElement.title = `email: ${mailto}`
+    mentionElement.title = `email: ${user.email}`
 
     // Re-enable contenteditable and set focus, reinstall cursor position
     setContentEditableActive()
@@ -273,10 +227,6 @@ export function Note(props: NoteProps) {
     }
   }
 
-  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
-    setMentionQuery(event.target.value)
-  }
-
   return (
     <div
       className={`m-3 border p-3 ${props.isNew ? 'bg-primaryColor' : 'bg-secondaryColor'}`}
@@ -309,18 +259,11 @@ export function Note(props: NoteProps) {
           }}
           data-testid={`note-${props.id}-mention-overlay`}
         >
-          <input
-            type='text'
-            value={mentionQuery}
-            onChange={handleInputChange}
+          <UserMentionList
+            id={props.id}
+            onSelect={insertMention}
             onKeyDown={handleMentionInputKeyDown}
-            autoFocus
-            className='bg-orange p-1 text-md text-white'
-            data-testid={`note-${props.id}-mention-input`}
           />
-          <ul data-testid={`note-${props.id}-mention-list`}>
-            {renderFilteredUserList()}
-          </ul>
         </div>
       )}
     </div>
