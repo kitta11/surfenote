@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext,
   Dispatch,
   ReactNode,
@@ -14,13 +14,13 @@ interface WorkspaceKeyContextType {
 }
 const WorkspaceKeyContext = createContext<WorkspaceKeyContextType | null>(null)
 
-export interface WorkspaceKeyProvider {
+export interface WorkspaceKeyProviderProps {
   children: ReactNode
 }
 
 const WORKSPACE_STORAGE_KEYNAME = 'workspaceKey'
 
-export const WorkspaceKeyProvider: React.FC<WorkspaceKeyProvider> = ({
+export const WorkspaceKeyProvider: React.FC<WorkspaceKeyProviderProps> = ({
   children,
 }) => {
   const [workspaceKey, setWorkspaceKey] = useState<string>('')

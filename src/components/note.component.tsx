@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from 'react'
 import { NoteProps } from '../types'
 import debounce from 'lodash/debounce'
 import { useNotes } from '../hooks/use-notes'
@@ -20,7 +28,7 @@ export function Note(props: NoteProps) {
 
   const { data: usersData, isLoading: usersLoading } = useUsers()
 
-  const autoSave = () => {
+  const autoSave = useCallback(() => {
     if (showMentionInput) return
 
     if (props.id !== undefined) {
@@ -30,13 +38,13 @@ export function Note(props: NoteProps) {
         props.handleAddNewNode(noteBodyInnerHTML)
       }
     }
-  }
+  }, [showMentionInput, props, updateNote, noteBodyInnerHTML])
 
   const autoSaveRef = useRef(autoSave)
 
   useEffect(() => {
     autoSaveRef.current = autoSave
-  }, [noteBodyInnerHTML])
+  }, [autoSave])
 
   const handleDebouncedAutoSave = useMemo(() => {
     const func = () => {
@@ -49,7 +57,7 @@ export function Note(props: NoteProps) {
     if (divRef.current) {
       divRef.current.innerHTML = props.body || ''
     }
-  }, [])
+  }, [props.body])
 
   function getCaretPosition(el: HTMLElement) {
     const selection = window.getSelection()
@@ -113,7 +121,7 @@ export function Note(props: NoteProps) {
     selection.addRange(range)
   }
 
-  function handleNoteBodyTextChange(event: React.FormEvent<HTMLDivElement>) {
+  function handleNoteBodyTextChange(event: FormEvent<HTMLDivElement>) {
     if (divRef.current) {
       const caretPos = getCaretPosition(divRef.current)
       caretPosRef.current = caretPos
@@ -247,7 +255,7 @@ export function Note(props: NoteProps) {
 
     handleNoteBodyTextChange({
       currentTarget: editableElement,
-    } as React.FormEvent<HTMLDivElement>)
+    } as FormEvent<HTMLDivElement>)
   }
 
   function handleMentionInputKeyDown(
@@ -258,7 +266,7 @@ export function Note(props: NoteProps) {
     }
   }
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     setMentionQuery(event.target.value)
   }
 
