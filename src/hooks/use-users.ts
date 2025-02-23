@@ -15,7 +15,7 @@ export function useUsers(): UseUsersResponse {
 			}
 			const users: User[] = await response.json()
 			setUsersData(users)
-		} catch (err: any) {
+		} catch (err: unknown) {
 			if (err instanceof Error) {
 				setError(err.message)
 			} else {

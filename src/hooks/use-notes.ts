@@ -16,7 +16,7 @@ export function useNotes(): UseNotesResponse {
 			if (!response.ok) throw new Error('Network response was not ok')
 			const data: NoteProps[] = await response.json()
 			setNotes(data)
-		} catch (err: any) {
+		} catch (err: unknown) {
 			if (err instanceof Error) {
 				setError(err.message)
 			} else {
@@ -41,7 +41,7 @@ export function useNotes(): UseNotesResponse {
 			if (response.ok) {
 				await getNotes()
 			}
-		} catch (err: any) {
+		} catch (err: unknown) {
 			if (err instanceof Error) {
 				setError(err.message)
 			} else {
@@ -68,7 +68,7 @@ export function useNotes(): UseNotesResponse {
 					prevnotes.map((note) => (note.id === id ? updatedNote : note))
 				)
 			}
-		} catch (err: any) {
+		} catch (err: unknown) {
 			if (err instanceof Error) {
 				setError(err.message)
 			} else {

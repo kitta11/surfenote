@@ -1,4 +1,3 @@
-import './App.css'
 import { Notes } from './components/notes.component'
 import { WorkspaceKeyProvider } from './contexts/workspacekey-context'
 import logo from './assets/surfe-note-logo.png'

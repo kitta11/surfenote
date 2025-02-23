@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import { Note } from './note.component'
 import { useWorkspaceKeyContext } from '../contexts/workspacekey-context'
 import { noteMockData1, noteMockData2 } from '../mock-data'

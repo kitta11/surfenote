@@ -20,6 +20,9 @@
 	--note-spacing-3: 16px;
 	--note-spacing-4: 24px;
 	--note-spacing-5: 32px;
+
+	max-width: 1280px;
+	margin: 0 auto;
 }
 
 @layer components {

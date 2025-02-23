@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNotes } from '../hooks/use-notes'
 import { Note } from './note.component'
+import { v4 as uuidv4 } from 'uuid'
 
 function getNewNoteKey(): string {
-	return crypto.randomUUID()
+	return uuidv4()
 }
 
 export function Notes() {
