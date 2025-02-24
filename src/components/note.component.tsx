@@ -14,6 +14,8 @@ import { getCaretPosition } from '../utils/get-caret-position'
 import { getCaretCoordinates } from '../utils/get-caret-coordinates'
 import { setCaretPosition } from '../utils/set-caret-position'
 import { createUserMentionElement } from './create-user-mention-element'
+import { insertElementAtCaret } from '../utils/insert-element-at-caret'
+import { handleEmptyContentEditable } from '../utils/handle-empty-contenteditable'
 
 export function Note(props: NoteProps) {
   const divRef = useRef<HTMLDivElement>(null)
@@ -120,28 +122,10 @@ export function Note(props: NoteProps) {
     if (!range || !selection) return
 
     const editableElement = divRef.current
-
     if (!editableElement) return
+    handleEmptyContentEditable(editableElement, range)
 
-    if (
-      editableElement.innerHTML.trim() === '<br>' ||
-      editableElement.innerHTML.trim() === ''
-    ) {
-      editableElement.innerHTML = ''
-      const placeholder = document.createTextNode(' ')
-      editableElement.appendChild(placeholder)
-      range.setStart(placeholder, 0)
-      range.setEnd(placeholder, 0)
-    }
-
-    range.deleteContents()
-    range.insertNode(element)
-
-    range.collapse(false)
-
-    const newRange = document.createRange()
-    newRange.setStartAfter(element)
-    newRange.setEndAfter(element)
+    const newRange = insertElementAtCaret(range, element)
 
     selection.removeAllRanges()
     selection.addRange(newRange)
