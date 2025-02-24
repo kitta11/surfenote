@@ -10,6 +10,10 @@ import { NoteProps, User } from '../types'
 import debounce from 'lodash/debounce'
 import { useNotes } from '../hooks/use-notes'
 import { UserMentionList } from './user-mention-list.component'
+import { getCaretPosition } from '../utils/get-caret-position'
+import { getCaretCoordinates } from '../utils/get-caret-coordinates'
+import { setCaretPosition } from '../utils/set-caret-position'
+import { createUserMentionElement } from './create-user-mention-element'
 
 export function Note(props: NoteProps) {
   const divRef = useRef<HTMLDivElement>(null)
@@ -54,68 +58,6 @@ export function Note(props: NoteProps) {
       divRef.current.innerHTML = props.body || ''
     }
   }, [props.body])
-
-  function getCaretPosition(el: HTMLElement) {
-    const selection = window.getSelection()
-    if (!selection || selection.rangeCount === 0) return 0
-
-    const range = selection.getRangeAt(0)
-
-    const preCaretRange = range.cloneRange()
-    preCaretRange.selectNodeContents(el)
-    preCaretRange.setEnd(range.endContainer, range.endOffset)
-    return preCaretRange.toString().length
-  }
-
-  function getCaretCoordinates(): { x: number; y: number } | null {
-    const selection = window.getSelection()
-    if (!selection || selection.rangeCount === 0) return null
-
-    const range = selection.getRangeAt(0)
-    if (!range) return null
-
-    if (range.collapsed) {
-      const rect =
-        range.startContainer instanceof HTMLElement
-          ? range.startContainer.getBoundingClientRect()
-          : range.getBoundingClientRect()
-
-      return { x: rect.left, y: rect.bottom - 28 }
-    }
-    const rect = range.getBoundingClientRect()
-
-    return { x: rect.left, y: rect.bottom - 28 }
-  }
-
-  function setCaretPosition(el: HTMLElement, position: number) {
-    const selection = window.getSelection()
-    if (!selection) return
-
-    const range = document.createRange()
-    let charIndex = 0
-
-    function traverseNodes(node: Node): boolean {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const nextCharIndex = charIndex + node.textContent!.length
-        if (nextCharIndex >= position) {
-          range.setStart(node, position - charIndex)
-          range.setEnd(node, position - charIndex)
-          return true
-        }
-        charIndex = nextCharIndex
-      } else {
-        for (const child of Array.from(node.childNodes)) {
-          if (traverseNodes(child)) return true
-        }
-      }
-      return false
-    }
-
-    traverseNodes(el)
-
-    selection.removeAllRanges()
-    selection.addRange(range)
-  }
 
   function handleNoteBodyTextChange(event: FormEvent<HTMLDivElement>) {
     if (divRef.current) {
@@ -167,19 +109,8 @@ export function Note(props: NoteProps) {
   function insertMention(user: User) {
     if (!divRef.current || cursorPosition === undefined) return
 
-    // Create and style mention element
-    const mentionElement = document.createElement('a')
-    mentionElement.textContent = `@${user.username} `
-    if (user.email) mentionElement.href = `mailto:${user.email}`
-    mentionElement.classList.add('text-orange')
-    mentionElement.classList.add('cursor-pointer')
-    mentionElement.classList.add('hover:underline')
-    mentionElement.title = `email: ${user.email}`
-
-    // Re-enable contenteditable and set focus, reinstall cursor position
+    const mentionElement = createUserMentionElement(user.username, user.email)
     setContentEditableActive()
-
-    // Insert mention at the saved caret position
     insertAtCaret(mentionElement)
   }
 
@@ -191,8 +122,6 @@ export function Note(props: NoteProps) {
     const editableElement = divRef.current
 
     if (!editableElement) return
-
-    console.log('HTML', editableElement.innerHTML)
 
     if (
       editableElement.innerHTML.trim() === '<br>' ||
@@ -210,12 +139,10 @@ export function Note(props: NoteProps) {
 
     range.collapse(false)
 
-    // Create a new range to place the caret after the inserted mention element
     const newRange = document.createRange()
     newRange.setStartAfter(element)
     newRange.setEndAfter(element)
 
-    // Remove any existing selections and add the new range
     selection.removeAllRanges()
     selection.addRange(newRange)
 

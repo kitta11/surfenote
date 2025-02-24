@@ -14,8 +14,6 @@ jest.mock('../hooks/use-notes', () => ({
 }))
 
 describe('Notes list page', () => {
-  const mockAddNote = jest.fn()
-
   beforeEach(() => {
     // Reset mocks before each test
     jest.clearAllMocks()
